@@ -38,13 +38,20 @@ public class SimpleWebClient {
                     String fileContent = "";
                     try {
                         BufferedReader fileReader = new BufferedReader(new FileReader(input[1]));
+                        StringBuilder contentBuilder = new StringBuilder();
                         String line;
                         while ((line = fileReader.readLine()) != null) {
-                            fileContent += line + "\n";
+                            contentBuilder.append(line).append("\n");
                         }
+                        fileContent = contentBuilder.toString();
                         fileReader.close();
+                        
+                        // Debug: Print the file content to the console to confirm it's read correctly
+                        // System.out.println("File content to send:");
+                        // System.out.println(fileContent);
+
                     } catch (FileNotFoundException e) {
-                        System.out.println("File not found");
+                        System.out.println("File not found: " + input[1]);
                         System.exit(1);
                     }
                     // Send the file content to the server

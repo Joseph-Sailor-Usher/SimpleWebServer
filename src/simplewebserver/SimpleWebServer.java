@@ -13,20 +13,7 @@ This toy web server is used to illustrate security vulnerabilities. This web ser
  *      Server receives from the client and:
  *          server saves the file content to <DestinationPath> on the server
  *          logs all client requests into a log file. 
- package simplewebclient;
-
-import java.io.*;
-import java.net.*;
-
-/*
- *  Update SimpleWebServer.java and SimpleWebClient.java to enable the client to upload a file. 
- *      User inputs PUT <fileToUpload> <DestinationPath> in the client program, 
- *          client reads the content of <fileToUpload> client side
- *          sends the command PUT <DestinationPath> and the file content to the server. 
- *      Server receives from the client and:
- *          server saves the file content to <DestinationPath> on the server
- *          logs all client requests into a log file. 
-public class SimpleWebClient {
+ public class SimpleWebClient {
     private static final String hostName = "localhost";
     private static final int PORT = 8080;
 
@@ -51,13 +38,20 @@ public class SimpleWebClient {
                     String fileContent = "";
                     try {
                         BufferedReader fileReader = new BufferedReader(new FileReader(input[1]));
+                        StringBuilder contentBuilder = new StringBuilder();
                         String line;
                         while ((line = fileReader.readLine()) != null) {
-                            fileContent += line + "\n";
+                            contentBuilder.append(line).append("\n");
                         }
+                        fileContent = contentBuilder.toString();
                         fileReader.close();
+                        
+                        // Debug: Print the file content to the console to confirm it's read correctly
+                        System.out.println("File content to send:");
+                        System.out.println(fileContent);
+
                     } catch (FileNotFoundException e) {
-                        System.out.println("File not found");
+                        System.out.println("File not found: " + input[1]);
                         System.exit(1);
                     }
                     // Send the file content to the server
@@ -85,6 +79,7 @@ public class SimpleWebClient {
         } 
     }
 }
+
  */
 
 import java.io.*;
@@ -188,7 +183,7 @@ public class SimpleWebServer {
 
     	/* try to open file specified by pathname */
     	try {
-//    		System.out.println("Path name: "+pathname);
+    		System.out.println("Path name: "+pathname);
     		fr = new FileReader (pathname);
     		c = fr.read();
     	}
@@ -216,24 +211,35 @@ public class SimpleWebServer {
     	osw.write (sb.toString());
     }
 
-
 	public void storeFile(BufferedReader br, OutputStreamWriter osw, String pathname) throws Exception {
-		FileWriter fw = null;
-		try {
-			fw = new FileWriter(pathname);
-			Scanner sc = new Scanner(br);
-			while (sc.hasNext()) {
-				String line = sc.nextLine();
-				fw.write(line+"\n");
-				System.out.println(line);
+		try (FileWriter fw = new FileWriter(pathname)) {
+			String line;
+			boolean headerEnded = false;
+			StringBuilder contentReceived = new StringBuilder();
+	
+			// Read and discard all header lines up to and including the blank line.
+			while ((line = br.readLine()) != null) {
+				if (line.isEmpty()) {
+					headerEnded = true;
+					break;
+				}
+				contentReceived.append(line).append("\n");
 			}
-			fw.close();
-			sc.close();
-			System.out.println(pathname+" is saved!");
-		} catch(Exception e) {
-		}
-	}
+	
+			// Print the content received for debugging purposes.
+			// System.out.println("Received content:");
+			// System.out.println(contentReceived.toString());
+	
+			// Confirm saving the file.
+			System.out.println(pathname + " is saved!");
 
+			// Write it to the file
+			fw.write(contentReceived.toString());
+		} catch (IOException e) {
+			e.printStackTrace(); // Print the stack trace for debugging purposes.
+		}
+	}	
+		
 	public void logEntry(String filename, String record) throws Exception {
 		FileWriter fw = new FileWriter(filename, true);
 		fw.write((new Date()).toString()+" "+record);
