@@ -13,6 +13,65 @@ This toy web server is used to illustrate security vulnerabilities. This web ser
  *      Server receives from the client and:
  *          server saves the file content to <DestinationPath> on the server
  *          logs all client requests into a log file. 
+ public class SimpleWebClient {
+    private static final String hostName = "localhost";
+    private static final int PORT = 8080;
+
+	public static void main(String[] args) throws IOException {
+        try (
+            Socket serverSocket = new Socket(hostName, PORT);
+            PrintWriter out =
+                new PrintWriter(serverSocket.getOutputStream(), true);
+            BufferedReader in =
+                new BufferedReader(
+                    new InputStreamReader(serverSocket.getInputStream()));
+            BufferedReader stdIn =
+                new BufferedReader(
+                    new InputStreamReader(System.in))
+        ) {
+            String userInput;
+            if ((userInput = stdIn.readLine()) != null) {
+                // If user input begins with "PUT", then send the file to the server
+                String[] input = userInput.split(" ");
+                if (input[0].equals("PUT")) {
+                    // Read the file content
+                    String fileContent = "";
+                    try {
+                        BufferedReader fileReader = new BufferedReader(new FileReader(input[1]));
+                        String line;
+                        while ((line = fileReader.readLine()) != null) {
+                            fileContent += line + "\n";
+                        }
+                        fileReader.close();
+                    } catch (FileNotFoundException e) {
+                        System.out.println("File not found");
+                        System.exit(1);
+                    }
+                    // Send the file content to the server
+                    out.println(userInput);
+                    out.println(fileContent);
+                }
+                else {
+                    out.println(userInput);
+                    String response=in.readLine();
+                    if (response!=null) {
+                        System.out.println("Response from Server: ");
+                        System.out.println(response);
+                        while ((response=in.readLine())!=null) {
+                            System.out.println(response);
+                        }
+                    }
+                }
+            }
+        } catch (UnknownHostException e) {
+            System.err.println("Don't know about host " + hostName);
+            System.exit(1);
+        } catch (IOException e) {
+            System.err.println("Couldn't get I/O for the connection to " +  hostName);
+            System.exit(1);
+        } 
+    }
+}
  */
 
 import java.io.*;
@@ -20,7 +79,6 @@ import java.net.*;
 import java.util.*;
 
 public class SimpleWebServer {
-
     /* Run the HTTP server on this TCP port. */
     private static final int PORT = 8080;
 
@@ -35,7 +93,6 @@ public class SimpleWebServer {
     	while (true) {
     		/* wait for a connection from a client */
     		Socket s = dServerSocket.accept();
-
     		/* then process the client's request */
     		processRequest(s);
     	}
@@ -58,10 +115,18 @@ public class SimpleWebServer {
     	/* parse the HTTP request */
     	StringTokenizer st = new StringTokenizer (request, " ");
 
-    	command = st.nextToken();
-    	pathname = st.nextToken();
+		/* If the request begins with "PUT" */
+		if (st.hasMoreElements() && st.nextToken().equals("PUT")) {
+			command = st.nextToken();
+			String filename = st.nextToken();
+			pathname = st.nextToken();
 
-    	if (command.equals("GET")) {
+			/* store the file content to the server */
+			storeFile(br, osw, pathname);
+			/* log all client requests into a log file */
+			logEntry("log.txt", "PUT "+filename+" "+pathname+"\n");
+		}
+    	else if (st.hasMoreElements() && st.nextToken().equals("GET")) {
     		/* if the request is a GET try to respond with the file the user is requesting */
     		System.out.println("Path name: "+pathname);
     		serveFile (osw,pathname);
