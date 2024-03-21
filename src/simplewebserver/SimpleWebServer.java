@@ -101,6 +101,29 @@ public class SimpleWebServer {
     	osw.write (sb.toString());
     }
 
+
+	public void storeFile(BufferedReader br, OutputStreamWriter osw, String pathname) throws Exception {
+		FileWriter fw = null;
+		try {
+			fw = new FileWriter(pathname);
+			Scanner sc = new Scanner(br);
+			while (sc.hasNext()) {
+				String line = sc.nextLine();
+				fw.write(line+"\n");
+				System.out.println(line);
+			}
+			fw.close();
+			sc.close();
+			System.out.println(pathname+" is saved!");
+		} catch(Exception e) {
+		}
+	}
+	public void logEntry(String filename, String record) throws Exception {
+		FileWriter fw = new FileWriter(filename, true);
+		fw.write((new Date()).toString()+" "+record);
+		fw.close();
+	}
+
     /* This method is called when the program is run from the command line. */
     public static void main (String argv[]) throws Exception {
     	/* Create a SimpleWebServer object, and run it */
