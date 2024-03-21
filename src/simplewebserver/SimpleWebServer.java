@@ -118,6 +118,7 @@ public class SimpleWebServer {
 		} catch(Exception e) {
 		}
 	}
+	
 	public void logEntry(String filename, String record) throws Exception {
 		FileWriter fw = new FileWriter(filename, true);
 		fw.write((new Date()).toString()+" "+record);
