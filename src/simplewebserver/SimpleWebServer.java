@@ -82,6 +82,9 @@ public class SimpleWebServer {
     /* Run the HTTP server on this TCP port. */
     private static final int PORT = 8080;
 
+	/* Max Size for files to be served to a client */
+	private static final int MAX_FILE_SIZE = 1024 * 1024 * 10;
+
     /* The socket used to process incoming connections from web clients */
     private static ServerSocket dServerSocket;
 
@@ -156,6 +159,7 @@ public class SimpleWebServer {
     	osw.close();
     }
 
+	/* Serve the file to the client if the file is of a size less than MAX_FILE_SIZE */
     public void serveFile (OutputStreamWriter osw, String pathname) throws Exception {
     	FileReader fr=null;
     	int c=-1;
@@ -181,6 +185,13 @@ public class SimpleWebServer {
     		return;
     	}
 
+		/* if the file is too large, return the appropriate HTTP response code */
+		File file = new File(pathname);
+		if (file.length() > MAX_FILE_SIZE) {
+			osw.write ("HTTP/1.0 403 Forbidden\n\n");
+			return;
+		}
+		
  	/* if the requested file can be successfully opened
  	   and read, then return an OK response code and
  	   send the contents of the file */
