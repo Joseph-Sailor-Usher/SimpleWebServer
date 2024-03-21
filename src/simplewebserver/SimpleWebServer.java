@@ -5,6 +5,16 @@ SimpleWebServer.java
 This toy web server is used to illustrate security vulnerabilities. This web server only supports extremely simple HTTP GET requests.
 ****************************************************************/
 
+/*
+ *  Update SimpleWebServer.java and SimpleWebClient.java to enable the client to upload a file. 
+ *      User inputs PUT <fileToUpload> <DestinationPath> in the client program, 
+ *          client reads the content of <fileToUpload> client side
+ *          sends the command PUT <DestinationPath> and the file content to the server. 
+ *      Server receives from the client and:
+ *          server saves the file content to <DestinationPath> on the server
+ *          logs all client requests into a log file. 
+ */
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -118,7 +128,7 @@ public class SimpleWebServer {
 		} catch(Exception e) {
 		}
 	}
-	
+
 	public void logEntry(String filename, String record) throws Exception {
 		FileWriter fw = new FileWriter(filename, true);
 		fw.write((new Date()).toString()+" "+record);

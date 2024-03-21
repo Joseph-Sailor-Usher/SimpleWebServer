@@ -31,14 +31,36 @@ public class SimpleWebClient {
         ) {
             String userInput;
             if ((userInput = stdIn.readLine()) != null) {
-                out.println(userInput);
-                String response=in.readLine();
-                if (response!=null) {
-                	System.out.println("Response from Server: ");
-                	System.out.println(response);
-                	while ((response=in.readLine())!=null) {
-                		System.out.println(response);
-                	}
+                // If user input begins with "PUT", then send the file to the server
+                String[] input = userInput.split(" ");
+                if (input[0].equals("PUT")) {
+                    // Read the file content
+                    String fileContent = "";
+                    try {
+                        BufferedReader fileReader = new BufferedReader(new FileReader(input[1]));
+                        String line;
+                        while ((line = fileReader.readLine()) != null) {
+                            fileContent += line + "\n";
+                        }
+                        fileReader.close();
+                    } catch (FileNotFoundException e) {
+                        System.out.println("File not found");
+                        System.exit(1);
+                    }
+                    // Send the file content to the server
+                    out.println(userInput);
+                    out.println(fileContent);
+                }
+                else {
+                    out.println(userInput);
+                    String response=in.readLine();
+                    if (response!=null) {
+                        System.out.println("Response from Server: ");
+                        System.out.println(response);
+                        while ((response=in.readLine())!=null) {
+                            System.out.println(response);
+                        }
+                    }
                 }
             }
         } catch (UnknownHostException e) {
