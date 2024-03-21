@@ -13,7 +13,20 @@ This toy web server is used to illustrate security vulnerabilities. This web ser
  *      Server receives from the client and:
  *          server saves the file content to <DestinationPath> on the server
  *          logs all client requests into a log file. 
- public class SimpleWebClient {
+ package simplewebclient;
+
+import java.io.*;
+import java.net.*;
+
+/*
+ *  Update SimpleWebServer.java and SimpleWebClient.java to enable the client to upload a file. 
+ *      User inputs PUT <fileToUpload> <DestinationPath> in the client program, 
+ *          client reads the content of <fileToUpload> client side
+ *          sends the command PUT <DestinationPath> and the file content to the server. 
+ *      Server receives from the client and:
+ *          server saves the file content to <DestinationPath> on the server
+ *          logs all client requests into a log file. 
+public class SimpleWebClient {
     private static final String hostName = "localhost";
     private static final int PORT = 8080;
 
