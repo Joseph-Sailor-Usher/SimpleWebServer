@@ -115,18 +115,34 @@ public class SimpleWebServer {
     	/* parse the HTTP request */
     	StringTokenizer st = new StringTokenizer (request, " ");
 
-		/* If the request begins with "PUT" */
-		if (st.hasMoreElements() && st.nextToken().equals("PUT")) {
+		/* Try to read the first token */
+		if (st.hasMoreElements()) {
 			command = st.nextToken();
-			String filename = st.nextToken();
-			pathname = st.nextToken();
+		} else {
+			command = null;
+		}
+		/* If the request begins with "PUT" */
+		if (command.equals("PUT")) {
+			/* read the file name and path name from the request */
+			String filename = null;
+			if(st.hasMoreTokens()) {
+				filename = st.nextToken();
+			}
+			if(st.hasMoreTokens()) {
+				pathname = st.nextToken();
+			}
 
 			/* store the file content to the server */
 			storeFile(br, osw, pathname);
 			/* log all client requests into a log file */
-			logEntry("log.txt", "PUT "+filename+" "+pathname+"\n");
+			if(filename!=null && pathname!=null) {
+				logEntry("log.txt", "PUT "+filename+" "+pathname+"\n");
+			}
 		}
-    	else if (st.hasMoreElements() && st.nextToken().equals("GET")) {
+    	else if (command.equals("GET")) {
+			if(st.hasMoreTokens()) {
+				pathname = st.nextToken();
+			}
     		/* if the request is a GET try to respond with the file the user is requesting */
     		System.out.println("Path name: "+pathname);
     		serveFile (osw,pathname);
